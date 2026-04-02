@@ -1,0 +1,29 @@
+name: flutter_application_1
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # Переносим сюда из нижней части файла
+  font_awesome_flutter: ^10.7.0 
+  intl_phone_number_input: ^0.7.4
+  image_picker: ^1.0.7
+  dotted_border: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Исправленные отступы для ассетов
+  assets:
+    - assets/imgs/
