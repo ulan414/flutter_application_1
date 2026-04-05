@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+
+import 'Create_Activity.dart';
+import 'Profile.dart';
+import 'Search.dart';
+import 'Message.dart';
+
 class Chat extends StatelessWidget {
   const Chat({super.key});
   @override
@@ -6,6 +12,7 @@ class Chat extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 19, 18, 33),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         toolbarHeight: 180, // Увеличили высоту для поиска
         titleSpacing: 16,
         title: Column(
@@ -97,19 +104,43 @@ class Chat extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavIcon(Icons.home_outlined, "Главная", false),
-              _buildNavIcon(Icons.explore_outlined, "Поиск", false),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey,
+              _buildNavIcon(Icons.home_outlined, "Главная", false, () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const Search())
+                );
+              }),
+              
+              _buildNavIcon(Icons.map_outlined, "Карта", false, () {
+                // Navigator.push logic for Map
+              }),
+
+              // Your FAB button (Add logic here too!)
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateActivity()));
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+                  child: const Icon(Icons.add),
                 ),
-                
-                child: Icon(Icons.add),
-              ),// Место для FAB кнопки
-              _buildNavIcon(Icons.chat_bubble_outline, "Чаты", true, hasNotification: true),
-              _buildNavIcon(Icons.person, "Профиль", false), // Активная вкладка
+              ),
+
+              // THE MESSAGE SCREEN BUTTON
+              _buildNavIcon(Icons.chat_bubble_outline, "Чаты", true, () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const Chat())
+                );
+              }, hasNotification: true),
+
+              _buildNavIcon(Icons.person_outline, "Профиль", false, () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const Profile())
+                );
+              }),
             ],
           ),
         ),
@@ -228,26 +259,40 @@ Widget _builtMessage(String name, String imgAdress, String lastmessage, String t
     ),
   );
 }
-Widget _buildNavIcon(IconData icon, String label, bool isActive, {bool hasNotification = false}) {
+Widget _buildNavIcon(
+  IconData icon, 
+  String label, 
+  bool isActive, 
+  VoidCallback onTap, // <--- Add this parameter
+  {bool hasNotification = false}
+) {
   final color = isActive ? const Color(0xFFE93C35) : Colors.white38;
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Stack(
-        children: [
-          Icon(icon, color: color),
-          if (hasNotification)
-            Positioned(
-              right: 0,
-              child: Container(
-                width: 8, height: 8,
-                decoration: const BoxDecoration(color: Color(0xFFE93C35), shape: BoxShape.circle),
+  
+  return GestureDetector( // <--- Wrap with GestureDetector
+    onTap: onTap, 
+    behavior: HitTestBehavior.opaque, // Makes the entire area clickable
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          children: [
+            Icon(icon, color: color),
+            if (hasNotification)
+              Positioned(
+                right: 0,
+                child: Container(
+                  width: 8, height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE93C35), 
+                    shape: BoxShape.circle
+                  ),
+                ),
               ),
-            ),
-        ],
-      ),
-      Text(label, style: TextStyle(color: color, fontSize: 10)),
-    ],
+          ],
+        ),
+        Text(label, style: TextStyle(color: color, fontSize: 10)),
+      ],
+    ),
   );
 }
 }

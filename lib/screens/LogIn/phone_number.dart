@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:flutter_application_1/screens/App/Search.dart';
+
+
 class PhoneNumber extends StatelessWidget {
   const PhoneNumber({super.key});
 
@@ -105,7 +108,14 @@ class PhoneNumber extends StatelessWidget {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Search(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

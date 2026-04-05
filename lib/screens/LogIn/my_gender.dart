@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'i_am_looking.dart';
+
 class MyGender extends StatelessWidget {
   const MyGender({super.key});
 
@@ -91,7 +93,14 @@ class MyGender extends StatelessWidget {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const IAmLooking(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

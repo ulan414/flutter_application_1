@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:flutter_application_1/screens/App/Search.dart';
+
 class MyPhoto extends StatefulWidget {
   const MyPhoto({super.key});
 
@@ -55,7 +57,14 @@ class _MyPhotoState extends State<MyPhoto> {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Search(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

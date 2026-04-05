@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'my_email.dart';
+
 class MyName extends StatelessWidget {
   const MyName({super.key});
 
@@ -99,7 +101,14 @@ class MyName extends StatelessWidget {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyEmail(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

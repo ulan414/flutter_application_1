@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'my_interests.dart';
+
 class IAmLooking extends StatefulWidget {
   const IAmLooking({super.key});
 
@@ -110,7 +112,14 @@ class _IAmLookingState extends State<IAmLooking> {
           color: const Color(0xFFE93C35),
           borderRadius: BorderRadius.circular(30),
           child: InkWell(
-            onTap: canContinue ? () { /* Go to next page */ } : null,
+            onTap: canContinue ? () { 
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MyInterests(), // Replace 'Message' with your class name if it's different
+                ),
+              );
+            } : null,
             borderRadius: BorderRadius.circular(30),
             child: const Center(
               child: Text(

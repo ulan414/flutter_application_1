@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Verification extends StatelessWidget {
-  const Verification({super.key});
+import 'my_name.dart';
+
+class VerificationReg extends StatelessWidget {
+  const VerificationReg({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +131,14 @@ class Verification extends StatelessWidget {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyName(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

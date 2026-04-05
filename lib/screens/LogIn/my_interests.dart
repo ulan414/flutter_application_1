@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'my_photo.dart';
+
 class MyInterests extends StatefulWidget {
   const MyInterests({super.key});
 
@@ -111,7 +113,14 @@ class _MyInterestsState extends State<MyInterests> {
     return Opacity(
       opacity: canContinue ? 1.0 : 0.5,
       child: ElevatedButton(
-        onPressed: canContinue ? () {} : null,
+        onPressed: canContinue ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MyPhoto(), // Replace 'Message' with your class name if it's different
+            ),
+          );
+        } : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFE93C35),
           minimumSize: const Size(350, 56),

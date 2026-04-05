@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart'; // Import the package
 
+import 'Message.dart';
+
+
 class Group extends StatelessWidget {
   const Group({super.key});
   @override
@@ -22,7 +25,9 @@ class Group extends StatelessWidget {
             IconButton(
               padding: EdgeInsets.zero, // Убираем лишние отступы, если нужно
               constraints: const BoxConstraints(), 
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pop(context); 
+              },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
 

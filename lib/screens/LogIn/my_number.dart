@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'phone_number.dart';
-import 'my_number.dart';
+import 'verificationReg.dart';
 
 
-
-class StartLog extends StatelessWidget {
-  const StartLog({super.key});
+class MyNumber extends StatelessWidget {
+  const MyNumber({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +33,29 @@ class StartLog extends StatelessWidget {
                     width: 200,
                     fit: BoxFit.contain,
                   ),
-
-                const Spacer(),
-
-                // 3️⃣ Центральная композиция с аватарами
-                SizedBox(
-                  height: size.height * 0.4,
-                  width: double.infinity,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Декоративные линии (если они в Ellipse.png)
-                      _buildAvatar('assets/imgs/Ellipse8.png', 140, -80, -60),
-                      _buildAvatar('assets/imgs/Ellipse12.png', 120, 80, 20),
-                      _buildAvatar('assets/imgs/Ellipse67.png', 90, -40, 100),
-                    ],
+                  const Spacer(),
+// 1. Оберни Image.asset в Container и ClipRRect
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3), // Мягкая тень
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20), // Большое закругление
+                      child: Image.asset(
+                        'assets/imgs/people.jpg',
+                        width: 350, // Немного увеличим для акцента
+                        fit: BoxFit.contain, // Сохраняем BoxFit.contain, если ширина приоритетна
+                      ),
+                    ),
                   ),
-                ),
+                  const Spacer(),
 
-                const Spacer(),
 
                 // 4️⃣ Текстовый блок и кнопки
                 Padding(
@@ -61,7 +63,7 @@ class StartLog extends StatelessWidget {
                   child: Column(
                     children: [
                       const Text(
-                        "Найди своего партнера",
+                        "Мой Номер",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 28,
@@ -72,7 +74,7 @@ class StartLog extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        "Зажигай не только сигарету, но и крутой диалог. Твой идеальный напарник уже здесь",
+                        "Нам понадобится ваш номер телефона, чтобы отправить OTP для проверки.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 15,
@@ -85,12 +87,12 @@ class StartLog extends StatelessWidget {
                       // Кнопка входа
                       _buildMainButton(
                         context,
-                        title: "Войти через телефон",
+                        title: "Продолжить",
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PhoneNumber(), // Replace 'Message' with your class name if it's different
+                              builder: (context) => const VerificationReg(), // Replace 'Message' with your class name if it's different
                             ),
                           );
                         },
@@ -103,20 +105,15 @@ class StartLog extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Нет аккаунта?",
+                            "Есть аккаунт?",
                             style: TextStyle(color: Color(0xFFB9C7D2)),
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyNumber(), // Replace 'Message' with your class name if it's different
-                                ),
-                              );
+
                             },
                             child: const Text(
-                              "Регистрация",
+                              "Войти",
                               style: TextStyle(
                                 color: Color(0xFFFF5069),
                                 fontWeight: FontWeight.bold,
@@ -137,29 +134,6 @@ class StartLog extends StatelessWidget {
     );
   }
 
-  // Виджет для аватаров с позиционированием
-  Widget _buildAvatar(String asset, double size, double dx, double dy) {
-    return Transform.translate(
-      offset: Offset(dx, dy),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              spreadRadius: 5,
-            )
-          ],
-        ),
-        child: ClipOval(
-          child: Image.asset(asset, fit: BoxFit.cover),
-        ),
-      ),
-    );
-  }
 
   // Красивая кнопка
   Widget _buildMainButton(BuildContext context, {required String title, required VoidCallback onTap}) {

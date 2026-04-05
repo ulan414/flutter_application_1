@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+
+import 'Chat.dart';
+import 'Group.dart';
+
 class Message extends StatelessWidget {
   const Message({super.key});
   @override
@@ -15,18 +19,30 @@ class Message extends StatelessWidget {
             IconButton(
               padding: EdgeInsets.zero, // Убираем лишние отступы, если нужно
               constraints: const BoxConstraints(), 
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Chat(), // Replace 'Message' with your class name if it's different
+                  ),
+                );
+              },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
 
             // 2. Заголовок
-            const Text(
-              'Футбол 5x5',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Group())),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Футбол 5x5',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.keyboard_arrow_right, color: Colors.white70, size: 18), // Indicates a link
+                ],
               ),
             ),
 
