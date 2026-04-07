@@ -29,6 +29,7 @@ class VerificationLog extends StatelessWidget {
           ),
         ),
 
+
         // Progress bar
         Transform.translate(
           offset: const Offset(0, 50),

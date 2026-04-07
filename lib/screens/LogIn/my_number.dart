@@ -1,128 +1,159 @@
 import 'package:flutter/material.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart'; // 1. Import Supabase
 import 'verificationReg.dart';
 
-
-class MyNumber extends StatelessWidget {
+class MyNumber extends StatefulWidget {
   const MyNumber({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+  State<MyNumber> createState() => _MyNumberState();
+}
 
+class _MyNumberState extends State<MyNumber> {
+  String _selectedCode = '+7';
+  
+  // 2. Add a Controller to capture the phone number
+  final TextEditingController _phoneController = TextEditingController();
+  bool _isLoading = false;
+
+  // 3. The Function to send OTP
+  Future<void> _sendOtp() async {
+    final number = _phoneController.text.trim();
+    if (number.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Пожалуйста, введите номер")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final fullNumber = '$_selectedCode$number';
+      
+      await Supabase.instance.client.auth.signInWithOtp(
+        phone: fullNumber,
+      );
+
+      if (mounted) {
+        // Navigate to verification and pass the phone number so we can use it there
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerificationReg(phoneNumber: fullNumber),
+          ),
+        );
+      }
+    } on AuthException catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message), backgroundColor: Colors.red),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Произошла ошибка"), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 1️⃣ Background - используем Container с цветом или картинку
+          // Background
           SizedBox.expand(
-            child: Image.asset(
-              'assets/imgs/background.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover),
           ),
-
-          // 2️⃣ Основной контент
           SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                
-                // Логотип Redy
-                  Image.asset(
-                    'assets/imgs/logo.png',
-                    width: 200,
-                    fit: BoxFit.contain,
-                  ),
-                  const Spacer(),
-// 1. Оберни Image.asset в Container и ClipRRect
-                  Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3), // Мягкая тень
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20), // Большое закругление
-                      child: Image.asset(
-                        'assets/imgs/people.jpg',
-                        width: 350, // Немного увеличим для акцента
-                        fit: BoxFit.contain, // Сохраняем BoxFit.contain, если ширина приоритетна
+                Image.asset('assets/imgs/logo.png', width: 200, fit: BoxFit.contain),
+                const Spacer(),
+                // Фотография
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3), // Мягкая тень
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
                       ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20), // Большое закругление
+                    child: Image.asset(
+                      'assets/imgs/people.jpg',
+                      width: 350, // Немного увеличим для акцента
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  const Spacer(),
+                ),
 
-
-                // 4️⃣ Текстовый блок и кнопки
+                const Spacer(),
+                
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      const Text(
-                        "Мой Номер",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1.2,
-                        ),
-                      ),
+                      const Text("Мой Номер", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
                       const SizedBox(height: 12),
                       const Text(
                         "Нам понадобится ваш номер телефона, чтобы отправить OTP для проверки.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFFB9C7D2),
-                          height: 1.4,
-                        ),
+                        style: TextStyle(fontSize: 15, color: Color(0xFFB9C7D2)),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 30),
 
-                      // Кнопка входа
-                      _buildMainButton(
-                        context,
-                        title: "Продолжить",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const VerificationReg(), // Replace 'Message' with your class name if it's different
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Регистрация
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Есть аккаунт?",
-                            style: TextStyle(color: Color(0xFFB9C7D2)),
-                          ),
-                          TextButton(
-                            onPressed: () {
-
-                            },
-                            child: const Text(
-                              "Войти",
-                              style: TextStyle(
-                                color: Color(0xFFFF5069),
-                                fontWeight: FontWeight.bold,
+                      // 📱 Phone Input Field
+                      Container(
+                        height: 55,
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedCode,
+                                items: <String>['+7', '+1', '+44', '+995']
+                                    .map((String value) => DropdownMenuItem(value: value, child: Text(value)))
+                                    .toList(),
+                                onChanged: (val) => setState(() => _selectedCode = val!),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: _phoneController, // 4. Attach controller
+                                keyboardType: TextInputType.phone,
+                                decoration: const InputDecoration(hintText: "Номер телефона", border: InputBorder.none),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 30),
+
+                      // 5. Loading Indicator or Button
+                      _isLoading 
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : _buildMainButton(
+                            context,
+                            title: "Продолжить",
+                            onTap: _sendOtp, // 6. Link function
+                          ),
+                      
                       const SizedBox(height: 20),
+                      // ... (rest of your UI)
                     ],
                   ),
                 ),
@@ -134,6 +165,7 @@ class MyNumber extends StatelessWidget {
     );
   }
 
+  // (Keep your _buildMainButton helper method here)
 
   // Красивая кнопка
   Widget _buildMainButton(BuildContext context, {required String title, required VoidCallback onTap}) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/LogIn/my_number.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter_application_1/screens/App/Search.dart';
@@ -240,7 +241,12 @@ class PhoneNumber extends StatelessWidget {
                     const SizedBox(width: 8),
                     GestureDetector(
                       onTap: () {
-                        // Навигация будет здесь
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyNumber(), // Replace 'Message' with your class name if it's different
+                          ),
+                        );
                       },
                       child: const Text(
                         "Регистрация",

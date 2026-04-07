@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/LogIn/start.dart';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'screens/App/Profile.dart';
 import 'screens/App/Create_Activity.dart';
 import 'screens/App/Search.dart';
@@ -15,7 +19,17 @@ import 'screens/LogIn/my_number.dart';
 
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load your custom named file
+  await dotenv.load(fileName: "key.env"); 
+
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
+
   runApp(const MyApp());
 }
 

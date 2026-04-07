@@ -1,190 +1,150 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart'; // 1. Import Supabase
 import 'my_name.dart';
 
-class VerificationReg extends StatelessWidget {
-  const VerificationReg({super.key});
+class VerificationReg extends StatefulWidget {
+  // 2. Accept the phone number from the previous screen
+  final String phoneNumber;
+  const VerificationReg({super.key, required this.phoneNumber});
+
+  @override
+  State<VerificationReg> createState() => _VerificationRegState();
+}
+
+class _VerificationRegState extends State<VerificationReg> {
+  // 3. Controllers to capture each digit
+  final List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
+  bool _isLoading = false;
+
+  // 4. Function to verify the OTP
+  Future<void> _verifyOtp() async {
+    // Combine all digits into one string
+    final otp = _controllers.map((c) => c.text).join();
+
+    if (otp.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Введите полный код")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final AuthResponse res = await Supabase.instance.client.auth.verifyOTP(
+        type: OtpType.sms,
+        token: otp,
+        phone: widget.phoneNumber,
+      );
+
+      if (res.session != null && mounted) {
+        // Success! Go to the next screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyName()),
+        );
+      }
+    } on AuthException catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message), backgroundColor: Colors.red),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ошибка верификации"), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      alignment: AlignmentGeometry.topCenter,
-      children: [
-        // 1️⃣ Background
-        SizedBox.expand(
-          child: Image.asset(
-            'assets/imgs/background.png',
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        // 2️⃣ Logo
-        Transform.translate(
-          offset: const Offset(0, -10),
-          child: Image.asset(
-            'assets/imgs/logo.png',
-            width: 228,
-            height: 303,
-            fit: BoxFit.contain,
-          ),
-        ),
-
-        // Progress bar
-        Transform.translate(
-          offset: const Offset(0, 50),
-          child: Container(
-            width: 280,
-            height: 8,
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFE9F1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Container(
-              width: 35,
-              height: 8,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE93C35),
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-
-        Positioned(
-          top: 220,
-          left: 40,
-          right: 40,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(
-              "Код Верификации",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 15),
-            const Text(
-              "Пожалуйста, введите код, который мы только что отправили на",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFB9C7D2),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 5),
-            const Text(
-              "+77752229988",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 30), // Отступ перед кодом
-
-            // --- БЛОК ВВОДА OTP ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        alignment: AlignmentGeometry.topCenter,
+        children: [
+          // Background & Logo (Same as your code)
+          SizedBox.expand(child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover)),
+          
+          Positioned(
+            top: 220,
+            left: 20, // Increased horizontal space for 6 boxes
+            right: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _buildOtpBox(context, isFirst: true),
-                _buildOtpBox(context),
-                _buildOtpBox(context),
-                _buildOtpBox(context, isLast: true),
+                const Text("Код Верификации", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 15),
+                Text(
+                  "Пожалуйста, введите код, который мы только что отправили на",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Color(0xFFB9C7D2)),
+                ),
+                Text(
+                  widget.phoneNumber, // Display the actual number passed
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 30),
+
+                // --- 6 OTP BOXES ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(6, (index) => _buildOtpBox(
+                    context, 
+                    index: index, 
+                    controller: _controllers[index]
+                  )),
+                ),
+
+                const SizedBox(height: 30),
+                
+                _isLoading 
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : _buildVerifyButton(),
               ],
             ),
-            const SizedBox(height: 30),
-            const Text(
-              "Не получили СМС?",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFF0E1E1),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const Text(
-              "Отправить еще раз",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFE93C35),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 30), 
-            SizedBox(
-                  width: 350,
-                  height: 56,
-                  child: Material( // Added Material for InkWell splash to show
-                    color: const Color(0xFFE93C35),
-                    borderRadius: BorderRadius.circular(30),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MyName(), // Replace 'Message' with your class name if it's different
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(30),
-                      child: const Center(
-                        child: Text(
-                          "Верифицировать",
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-          ]),
-        )
-      ],
-    ));
+          )
+        ],
+      ),
+    );
   }
 
-  // Виджет одного кружка
-  Widget _buildOtpBox(BuildContext context, {bool isFirst = false, bool isLast = false}) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: const BoxDecoration(
-        color: Color(0xFFB9C7D2), // Тот самый цвет из твоего дизайна
-        shape: BoxShape.circle,
+  Widget _buildVerifyButton() {
+    return SizedBox(
+      width: 350,
+      height: 56,
+      child: Material(
+        color: const Color(0xFFE93C35),
+        borderRadius: BorderRadius.circular(30),
+        child: InkWell(
+          onTap: _verifyOtp,
+          borderRadius: BorderRadius.circular(30),
+          child: const Center(
+            child: Text("Верифицировать", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildOtpBox(BuildContext context, {required int index, required TextEditingController controller}) {
+    return Container(
+      width: 45, // Slightly smaller width to fit 6 boxes
+      height: 45,
+      decoration: const BoxDecoration(color: Color(0xFFB9C7D2), shape: BoxShape.circle),
       child: TextField(
+        controller: controller,
+        autofocus: index == 0,
         onChanged: (value) {
-          if (value.length == 1 && !isLast) {
-            FocusScope.of(context).nextFocus(); // Прыжок вперед
-          }
-          if (value.isEmpty && !isFirst) {
-            FocusScope.of(context).previousFocus(); // Прыжок назад
-          }
+          if (value.length == 1 && index < 5) FocusScope.of(context).nextFocus();
+          if (value.isEmpty && index > 0) FocusScope.of(context).previousFocus();
         },
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
-        inputFormatters: [
-          LengthLimitingTextInputFormatter(1),
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        decoration: const InputDecoration(
-          hintText: "-",
-          border: InputBorder.none,
-          counterText: "",
-        ),
+        inputFormatters: [LengthLimitingTextInputFormatter(1), FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(border: InputBorder.none, counterText: ""),
       ),
     );
   }
