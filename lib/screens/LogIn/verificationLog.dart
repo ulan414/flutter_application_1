@@ -1,171 +1,182 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_application_1/screens/App/Search.dart';
 
-class VerificationLog extends StatelessWidget {
-  const VerificationLog({super.key});
+class VerificationLog extends StatefulWidget {
+  final String phoneNumber;
+
+  const VerificationLog({super.key, required this.phoneNumber});
+
+  @override
+  State<VerificationLog> createState() => _VerificationLogState();
+}
+
+class _VerificationLogState extends State<VerificationLog> {
+  // 1. Create 6 controllers for 6 digits
+  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  bool _isLoading = false;
+
+  Future<void> _verifyOtp() async {
+    // Combine all 6 digits
+    final otp = _controllers.map((e) => e.text).join();
+    
+    if (otp.length < 6) {
+      _showSnackBar("Введите 6-значный код", Colors.orange);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final AuthResponse res = await Supabase.instance.client.auth.verifyOTP(
+        type: OtpType.sms,
+        token: otp,
+        phone: widget.phoneNumber,
+      );
+
+      if (res.session != null) {
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const Search()),
+            (route) => false,
+          );
+        }
+      }
+    } on AuthException catch (error) {
+      _showSnackBar(error.message, Colors.red);
+    } catch (e) {
+      _showSnackBar("Ошибка верификации", Colors.red);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+  @override
+void initState() {
+  super.initState();
+  // Trigger the SMS as soon as the user arrives on this screen
+  _sendSmsInitial();
+}
+
+Future<void> _sendSmsInitial() async {
+  try {
+    await Supabase.instance.client.auth.signInWithOtp(
+      phone: widget.phoneNumber,
+    );
+  } catch (e) {
+    _showSnackBar("Ошибка при отправке кода", Colors.red);
+  }
+}
+  Future<void> _resendSms() async {
+    try {
+      await Supabase.instance.client.auth.signInWithOtp(phone: widget.phoneNumber);
+      _showSnackBar("Код отправлен повторно", Colors.green);
+    } catch (e) {
+      _showSnackBar("Ошибка при отправке", Colors.red);
+    }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      alignment: AlignmentGeometry.topCenter,
-      children: [
-        // 1️⃣ Background
-        SizedBox.expand(
-          child: Image.asset(
-            'assets/imgs/background.png',
-            fit: BoxFit.cover,
+      body: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          // Background
+          SizedBox.expand(
+            child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover),
           ),
-        ),
-
-        // 2️⃣ Logo
-        Transform.translate(
-          offset: const Offset(0, -10),
-          child: Image.asset(
-            'assets/imgs/logo.png',
-            width: 228,
-            height: 303,
-            fit: BoxFit.contain,
-          ),
-        ),
-
-
-        // Progress bar
-        Transform.translate(
-          offset: const Offset(0, 50),
-          child: Container(
-            width: 280,
-            height: 8,
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFE9F1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Container(
-              width: 35,
-              height: 8,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE93C35),
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-
-        Positioned(
-          top: 220,
-          left: 40,
-          right: 40,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(
-              "Код Верификации",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 15),
-            const Text(
-              "Пожалуйста, введите код, который мы только что отправили на",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFB9C7D2),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 5),
-            const Text(
-              "+77752229988",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 30), // Отступ перед кодом
-
-            // --- БЛОК ВВОДА OTP ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          
+          SingleChildScrollView(
+            child: Column(
               children: [
-                _buildOtpBox(context, isFirst: true),
-                _buildOtpBox(context),
-                _buildOtpBox(context),
-                _buildOtpBox(context, isLast: true),
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "Не получили СМС?",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFF0E1E1),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const Text(
-              "Отправить еще раз",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFE93C35),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 30), 
-            SizedBox(
-                  width: 350,
-                  height: 56,
-                  child: Material( // Added Material for InkWell splash to show
-                    color: const Color(0xFFE93C35),
-                    borderRadius: BorderRadius.circular(30),
-                    child: InkWell(
-                      onTap: () {},
-                      borderRadius: BorderRadius.circular(30),
-                      child: const Center(
-                        child: Text(
-                          "Верифицировать",
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                const SizedBox(height: 60),
+                Image.asset('assets/imgs/logo.png', width: 180, height: 180),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Код Верификации",
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Введите 6-значный код, отправленный на\n${widget.phoneNumber}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Color(0xFFB9C7D2), fontSize: 14),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // 2. OTP Row - Using a smaller size to fit 6 circles
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(6, (index) => _buildOtpBox(index)),
+                      ),
+
+                      const SizedBox(height: 40),
+                      
+                      // Verify Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE93C35),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          ),
+                          onPressed: _isLoading ? null : _verifyOtp,
+                          child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text("Верифицировать", style: TextStyle(color: Colors.white, fontSize: 18)),
                         ),
                       ),
-                    ),
+                      
+                      const SizedBox(height: 30),
+                      const Text("Не получили СМС?", style: TextStyle(color: Color(0xFFF0E1E1))),
+                      GestureDetector(
+                        onTap: _resendSms,
+                        child: const Text("Отправить еще раз", style: TextStyle(color: Color(0xFFE93C35), fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ),
-          ]),
-        )
-      ],
-    ));
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  // Виджет одного кружка
-  Widget _buildOtpBox(BuildContext context, {bool isFirst = false, bool isLast = false}) {
+  Widget _buildOtpBox(int index) {
     return Container(
-      width: 60,
-      height: 60,
+      // Reduced width to 45-50 to ensure 6 boxes fit on standard screens
+      width: 48,
+      height: 48,
       decoration: const BoxDecoration(
-        color: Color(0xFFB9C7D2), // Тот самый цвет из твоего дизайна
+        color: Color(0xFFB9C7D2),
         shape: BoxShape.circle,
       ),
       child: TextField(
+        controller: _controllers[index],
         onChanged: (value) {
-          if (value.length == 1 && !isLast) {
-            FocusScope.of(context).nextFocus(); // Прыжок вперед
+          if (value.length == 1 && index < 5) {
+            FocusScope.of(context).nextFocus();
           }
-          if (value.isEmpty && !isFirst) {
-            FocusScope.of(context).previousFocus(); // Прыжок назад
+          if (value.isEmpty && index > 0) {
+            FocusScope.of(context).previousFocus();
           }
         },
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         inputFormatters: [
