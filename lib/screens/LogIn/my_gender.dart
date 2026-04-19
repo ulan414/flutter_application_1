@@ -1,116 +1,127 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../providers/registration_provider.dart';
 import 'i_am_looking.dart';
 
-class MyGender extends StatelessWidget {
+class MyGender extends StatefulWidget {  // StatelessWidget -> StatefulWidget
   const MyGender({super.key});
+
+  @override
+  State<MyGender> createState() => _MyGenderState();
+}
+
+class _MyGenderState extends State<MyGender> {
+  String? _selectedGender;  // добавил
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Background Layer
           SizedBox.expand(
-            child: Image.asset(
-              'assets/imgs/background.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover),
           ),
-
-          // 2. UI Layer
           SafeArea(
-            child: SizedBox.expand( // Ensures the Column spans the full width
+            child: SizedBox.expand(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 20), // Top padding
-
-                  // --- 1. PROGRESS BAR (TOP) ---
-                  Container(
-                    width: 280,
-                    height: 8,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFE9F1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      width: 280 / 8 * 5,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE93C35),
-                        borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 20),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Container(
+                              height: 8,
+                              alignment: Alignment.centerLeft,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFE9F1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: FractionallySizedBox(
+                                widthFactor: 3 / 8,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE93C35),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                        ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // --- 2. LOGO ---
-                  Image.asset(
-                    'assets/imgs/logo.png',
-                    width: 200,
-                    fit: BoxFit.contain,
-                  ),
-
-                  const SizedBox(height: 50), // Space between logo and text
-
-                  // --- 3. TEXT ---
+                  Image.asset('assets/imgs/logo.png', width: 200, fit: BoxFit.contain),
+                  const SizedBox(height: 50),
                   const Text(
                     "Какой ваш пол?",
-                    style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   const SizedBox(height: 50),
-                  // --- GENDER SELECTION ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Male Option
                       _buildGenderButton(
                         icon: Icons.male,
                         label: "Мужской",
-                        isSelected: false, // You'll change this with state later
-                        onTap: () {},
+                        isSelected: _selectedGender == "Мужской",  // исправил
+                        onTap: () => setState(() => _selectedGender = "Мужской"),  // исправил
                       ),
-                      const SizedBox(width: 20), // Space between buttons
-                      // Female Option
+                      const SizedBox(width: 20),
                       _buildGenderButton(
                         icon: Icons.female,
                         label: "Женский",
-                        isSelected: false, 
-                        onTap: () {},
+                        isSelected: _selectedGender == "Женский",  // исправил
+                        onTap: () => setState(() => _selectedGender = "Женский"),  // исправил
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
-                  width: 350,
-                  height: 56,
-                  child: Material( // Added Material for InkWell splash to show
-                    color: const Color(0xFFE93C35),
-                    borderRadius: BorderRadius.circular(30),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const IAmLooking(), // Replace 'Message' with your class name if it's different
-                          ),
-                        );
-                      },
+                    width: 350,
+                    height: 56,
+                    child: Material(
+                      color: const Color(0xFFE93C35),
                       borderRadius: BorderRadius.circular(30),
-                      child: const Center(
-                        child: Text(
-                          "Продолжить",
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                      child: InkWell(
+                        onTap: () {
+                          if (_selectedGender == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Выберите пол")),
+                            );
+                            return;
+                          }
+                          context.read<RegistrationProvider>().setGender(_selectedGender!);  // добавил
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const IAmLooking()),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                        child: const Center(
+                          child: Text(
+                            "Продолжить",
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
                 ],
               ),
             ),
@@ -120,6 +131,7 @@ class MyGender extends StatelessWidget {
     );
   }
 }
+
 Widget _buildGenderButton({
   required IconData icon,
   required String label,
@@ -142,11 +154,7 @@ Widget _buildGenderButton({
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 40,
-            color: isSelected ? Colors.white : const Color(0xFFE93C35),
-          ),
+          Icon(icon, size: 40, color: isSelected ? Colors.white : const Color(0xFFE93C35)),
           const SizedBox(height: 8),
           Text(
             label,

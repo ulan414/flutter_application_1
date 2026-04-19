@@ -75,6 +75,16 @@ class _MyNumberState extends State<MyNumber> {
           SafeArea(
             child: Column(
               children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10), // Adjust padding as needed
+                    child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 40),
                 Image.asset('assets/imgs/logo.png', width: 200, fit: BoxFit.contain),
                 const Spacer(),

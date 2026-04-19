@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // 1. Import Supabase
 import 'my_name.dart';
 
+import 'package:provider/provider.dart';
+import '../../providers/registration_provider.dart';
+
 class VerificationReg extends StatefulWidget {
   // 2. Accept the phone number from the previous screen
   final String phoneNumber;
@@ -40,6 +43,8 @@ class _VerificationRegState extends State<VerificationReg> {
 
       if (res.session != null && mounted) {
         // Success! Go to the next screen
+        context.read<RegistrationProvider>().setPhone(widget.phoneNumber);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MyName()),
@@ -66,6 +71,18 @@ class _VerificationRegState extends State<VerificationReg> {
         children: [
           // Background & Logo (Same as your code)
           SizedBox.expand(child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover)),
+          SafeArea(
+                child: Align(
+                  alignment: Alignment.topLeft, // Выравниваем в верхний левый угол
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, top: 10),
+                    child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
           
           Positioned(
             top: 220,

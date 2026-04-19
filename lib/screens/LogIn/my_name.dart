@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import '../../providers/registration_provider.dart';
+
 import 'my_email.dart';
 
-class MyName extends StatelessWidget {
+class MyName extends StatefulWidget {  // StatelessWidget -> StatefulWidget
   const MyName({super.key});
+
+  @override
+  State<MyName> createState() => _MyNameState();
+}
+
+class _MyNameState extends State<MyName> {
+  final TextEditingController _nameController = TextEditingController();  // добавил
+
+  @override
+  void dispose() {
+    _nameController.dispose();  // очищаем память
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +92,7 @@ class MyName extends StatelessWidget {
                     width: 350,
                     height: 56,
                     child: TextField(
+                      controller: _nameController,
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -102,6 +119,7 @@ class MyName extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
                       onTap: () {
+                        context.read<RegistrationProvider>().setName(_nameController.text);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

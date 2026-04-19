@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../providers/registration_provider.dart';
 import 'my_gender.dart';
 
-class MyAge extends StatelessWidget {
+class MyAge extends StatefulWidget {
   const MyAge({super.key});
+    @override
+  State<MyAge> createState() => _MyAgeState();
+}
+class _MyAgeState extends State<MyAge> {
+  final TextEditingController _ageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _ageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +39,45 @@ class MyAge extends StatelessWidget {
                   const SizedBox(height: 20), // Top padding
 
                   // --- 1. PROGRESS BAR (TOP) ---
-                  Container(
-                    width: 280,
-                    height: 8,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFE9F1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      width: 280 / 8 * 4,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE93C35),
-                        borderRadius: BorderRadius.circular(12),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10), // Общий отступ для всей строки
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center, // Выравнивание по центру высоты
+                        children: [
+                          // Кнопка назад
+                          IconButton(
+                            padding: EdgeInsets.zero, // Убираем внутренний отступ иконки
+                            constraints: const BoxConstraints(), // Убираем минимальный размер 48x48
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          ),
+                          
+                          const SizedBox(width: 15), // Отступ между стрелкой и прогресс-баром
+
+                          // Progress Bar
+                          Expanded( // Используем Expanded, чтобы бар занял оставшееся место, либо оставьте Container с фиксированной шириной
+                            child: Container(
+                              height: 8,
+                              alignment: Alignment.centerLeft,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFE9F1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: FractionallySizedBox(
+                                widthFactor: 3 / 8, // Пропорция заполнения (3 из 8 шагов)
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE93C35),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20), // Небольшой отступ справа для симметрии
+                        ],
                       ),
                     ),
                   ),
@@ -68,6 +105,7 @@ class MyAge extends StatelessWidget {
                     width: 350,
                     height: 56,
                     child: TextField(
+                      controller: _ageController,
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -94,11 +132,10 @@ class MyAge extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
                       onTap: () {
+                        context.read<RegistrationProvider>().setAge(int.parse(_ageController.text)); // int.parse!
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const MyGender(), // Replace 'Message' with your class name if it's different
-                          ),
+                          MaterialPageRoute(builder: (context) => const MyGender()),
                         );
                       },
                       borderRadius: BorderRadius.circular(30),

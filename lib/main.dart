@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/LogIn/start.dart';
+import 'package:flutter_application_1/screens/LogIn/verificationReg.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,7 +19,8 @@ import 'screens/LogIn/my_name.dart';
 import 'screens/LogIn/my_number.dart';
 
 
-
+// Startlog->VerificationReg->my_name->my_email->my_age->my_gender->IamLooking->MyInterests->my_photo->Main
+// Startlog->VerificationLog->Main
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -49,7 +51,8 @@ class MyApp extends StatelessWidget {
       // Используем класс из другого файла
       //  home: const LogoScreen(), 
       // home: const PhoneNumber(), 
-      home: const StartLog(), 
+      // home: const VerificationReg(phoneNumber: "+77751256005",), 
+      home: const MyName(), 
 
 
     );
