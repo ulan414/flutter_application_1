@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // 1. Import Supabase
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'my_name.dart';
-
 import 'package:provider/provider.dart';
 import '../../providers/registration_provider.dart';
 
 class VerificationReg extends StatefulWidget {
-  // 2. Accept the phone number from the previous screen
   final String phoneNumber;
   const VerificationReg({super.key, required this.phoneNumber});
 
@@ -16,13 +14,11 @@ class VerificationReg extends StatefulWidget {
 }
 
 class _VerificationRegState extends State<VerificationReg> {
-  // 3. Controllers to capture each digit
   final List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
   bool _isLoading = false;
+  bool _isResending = false;  // добавил
 
-  // 4. Function to verify the OTP
   Future<void> _verifyOtp() async {
-    // Combine all digits into one string
     final otp = _controllers.map((c) => c.text).join();
 
     if (otp.length < 6) {
@@ -42,9 +38,7 @@ class _VerificationRegState extends State<VerificationReg> {
       );
 
       if (res.session != null && mounted) {
-        // Success! Go to the next screen
         context.read<RegistrationProvider>().setPhone(widget.phoneNumber);
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MyName()),
@@ -56,10 +50,37 @@ class _VerificationRegState extends State<VerificationReg> {
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Ошибка верификации"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Ошибка: $error"), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // кнопка отправить снова
+  Future<void> _resendOtp() async {
+    setState(() => _isResending = true);
+
+    try {
+      await Supabase.instance.client.auth.signInWithOtp(
+        phone: widget.phoneNumber,
+      );
+
+      if (mounted) {
+        // очищаем поля
+        for (var c in _controllers) c.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Код отправлен повторно"), backgroundColor: Colors.green),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Ошибка: $error"), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isResending = false);
     }
   }
 
@@ -69,24 +90,22 @@ class _VerificationRegState extends State<VerificationReg> {
       body: Stack(
         alignment: AlignmentGeometry.topCenter,
         children: [
-          // Background & Logo (Same as your code)
           SizedBox.expand(child: Image.asset('assets/imgs/background.png', fit: BoxFit.cover)),
           SafeArea(
-                child: Align(
-                  alignment: Alignment.topLeft, // Выравниваем в верхний левый угол
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10, top: 10),
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, top: 10),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
               ),
-          
+            ),
+          ),
           Positioned(
             top: 220,
-            left: 20, // Increased horizontal space for 6 boxes
+            left: 20,
             right: 20,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -99,29 +118,54 @@ class _VerificationRegState extends State<VerificationReg> {
                   style: TextStyle(fontSize: 14, color: Color(0xFFB9C7D2)),
                 ),
                 Text(
-                  widget.phoneNumber, // Display the actual number passed
+                  widget.phoneNumber,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 30),
-
-                // --- 6 OTP BOXES ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(6, (index) => _buildOtpBox(
-                    context, 
-                    index: index, 
-                    controller: _controllers[index]
+                    context,
+                    index: index,
+                    controller: _controllers[index],
                   )),
                 ),
-
                 const SizedBox(height: 30),
-                
-                _isLoading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : _buildVerifyButton(),
+                _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : _buildVerifyButton(),
+                const SizedBox(height: 20),
+
+                // кнопка "отправить снова"
+                _isResending
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(color: Color(0xFFB9C7D2), strokeWidth: 2),
+                      )
+                    : GestureDetector(
+                        onTap: _resendOtp,
+                        child: RichText(
+                          text: const TextSpan(
+                            text: "Не получили код? ",
+                            style: TextStyle(fontSize: 14, color: Color(0xFFB9C7D2)),
+                            children: [
+                              TextSpan(
+                                text: "Отправить снова",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -147,7 +191,7 @@ class _VerificationRegState extends State<VerificationReg> {
 
   Widget _buildOtpBox(BuildContext context, {required int index, required TextEditingController controller}) {
     return Container(
-      width: 45, // Slightly smaller width to fit 6 boxes
+      width: 45,
       height: 45,
       decoration: const BoxDecoration(color: Color(0xFFB9C7D2), shape: BoxShape.circle),
       child: TextField(

@@ -117,7 +117,31 @@ class _MyEmailState extends State<MyEmail> {
                       borderRadius: BorderRadius.circular(30),
                       child: InkWell(
                         onTap: () {
-                          context.read<RegistrationProvider>().setEmail(_emailController.text); // добавил
+                          final email = _emailController.text.trim();
+
+                          if (email.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Введите email"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          // проверка формата email
+                          final emailRegex = RegExp(r'^[\w.-]+@[\w.-]+\.\w+$');
+                          if (!emailRegex.hasMatch(email)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Введите корректный email"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          context.read<RegistrationProvider>().setEmail(email);
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const MyAge()),

@@ -132,7 +132,51 @@ class _MyAgeState extends State<MyAge> {
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
                       onTap: () {
-                        context.read<RegistrationProvider>().setAge(int.parse(_ageController.text)); // int.parse!
+                        final ageText = _ageController.text.trim();
+
+                        if (ageText.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Введите возраст"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final age = int.tryParse(ageText);
+
+                        if (age == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Введите корректный возраст"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (age < 18) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Вам должно быть не менее 18 лет"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (age > 99) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Введите реальный возраст"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        context.read<RegistrationProvider>().setAge(age);
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const MyGender()),

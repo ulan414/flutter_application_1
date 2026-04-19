@@ -4,6 +4,7 @@ import 'package:flutter_application_1/screens/LogIn/verificationReg.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';  // добавил
 
 import 'screens/App/Profile.dart';
 import 'screens/App/Create_Activity.dart';
@@ -18,13 +19,11 @@ import 'screens/LogIn/phone_number.dart';
 import 'screens/LogIn/my_name.dart';
 import 'screens/LogIn/my_number.dart';
 
+import 'providers/registration_provider.dart';  // добавил
 
-// Startlog->VerificationReg->my_name->my_email->my_age->my_gender->IamLooking->MyInterests->my_photo->Main
-// Startlog->VerificationLog->Main
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load your custom named file
   await dotenv.load(fileName: "key.env"); 
 
   await Supabase.initialize(
@@ -32,7 +31,12 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(        // добавил
+      create: (_) => RegistrationProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -48,13 +52,32 @@ class MyApp extends StatelessWidget {
           seedColor: const Color.fromARGB(255, 55, 44, 87),
         ),
       ),
-      // Используем класс из другого файла
-      //  home: const LogoScreen(), 
-      // home: const PhoneNumber(), 
-      // home: const VerificationReg(phoneNumber: "+77751256005",), 
-      home: const MyName(), 
+      // home: const AuthWrapper(),
+      home: const StartLog(),
+    );
+  }
+}
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
 
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
 
+class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        final session = Supabase.instance.client.auth.currentSession;
+
+        if (session != null) {
+          return const Search();
+        } else {
+          return const StartLog();
+        }
+      },
     );
   }
 }

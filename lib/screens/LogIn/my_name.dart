@@ -118,15 +118,35 @@ class _MyNameState extends State<MyName> {
                     color: const Color(0xFFE93C35),
                     borderRadius: BorderRadius.circular(30),
                     child: InkWell(
-                      onTap: () {
-                        context.read<RegistrationProvider>().setName(_nameController.text);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MyEmail(), // Replace 'Message' with your class name if it's different
+                    onTap: () {
+                      final name = _nameController.text.trim();
+                      
+                      if (name.length < 4) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Имя должно быть не менее 4 букв"),
+                            backgroundColor: Colors.red,
                           ),
                         );
-                      },
+                        return;
+                      }
+
+                      if (name.length > 20) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Имя должно быть не более 20 букв"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      context.read<RegistrationProvider>().setName(name);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MyEmail()),
+                      );
+                    },
                       borderRadius: BorderRadius.circular(30),
                       child: const Center(
                         child: Text(

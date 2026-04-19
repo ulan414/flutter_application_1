@@ -24,16 +24,18 @@ class RegistrationProvider extends ChangeNotifier {
   void addPhoto(String value) { photos.add(value); notifyListeners(); }
   void removePhoto(String value) { photos.remove(value); notifyListeners(); }
 
-  Future<void> saveToSupabase() async {
-    final supabase = Supabase.instance.client;
-    await supabase.from('users').insert({
-      'name': name,
-      'age': age,
-      'interests': interests, // supabase поддерживает массивы
-      'gender': gender,
-      'photos': photos,       // supabase поддерживает массивы
-      'phone': phone,
-      'email': email,
-    });
-  }
+Future<void> saveToSupabase() async {
+  final supabase = Supabase.instance.client;
+  final userId = supabase.auth.currentUser?.id;
+  await supabase.from('profiles').upsert({
+    'id': userId,  // важно!
+    'username': name,
+    'phone': phone,
+    'email': email,
+    'age': age,
+    'gender': gender,
+    'interests': interests,
+    'photos': photos,
+  });
+}
 }
