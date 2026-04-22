@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Create_Activity.dart';
 import 'Chat.dart';
 import 'Search.dart';
+import 'Activities.dart';
+
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -304,9 +306,11 @@ Future<void> _loadData() async {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavIcon(Icons.home_outlined, "Главная", false, () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const Activity()));
+              }),
+              _buildNavIcon(Icons.confirmation_number_outlined, "Бронь", false, () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const Search()));
               }),
-              _buildNavIcon(Icons.map_outlined, "Карта", false, () {}),
               GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateActivity()));

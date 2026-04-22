@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'Create_Activity.dart';
 import 'Profile.dart';
 import 'Chat.dart';
+import 'Activities.dart';
 
 
 class Search extends StatelessWidget {
@@ -108,15 +109,18 @@ class Search extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavIcon(Icons.home_outlined, "Главная", true, () {
+              _buildNavIcon(Icons.home_outlined, "Главная", false, () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const Activity())
+                );
+              }),
+              
+              _buildNavIcon(Icons.confirmation_number_outlined, "Бронь", true, () {
                 Navigator.push(
                   context, 
                   MaterialPageRoute(builder: (context) => const Search())
                 );
-              }),
-              
-              _buildNavIcon(Icons.map_outlined, "Карта", false, () {
-                // Navigator.push logic for Map
               }),
 
               // Your FAB button (Add logic here too!)

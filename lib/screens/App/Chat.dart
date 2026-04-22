@@ -4,6 +4,7 @@ import 'Create_Activity.dart';
 import 'Profile.dart';
 import 'Search.dart';
 import 'Message.dart';
+import 'Activities.dart';
 
 class Chat extends StatelessWidget {
   const Chat({super.key});
@@ -107,12 +108,15 @@ class Chat extends StatelessWidget {
               _buildNavIcon(Icons.home_outlined, "Главная", false, () {
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder: (context) => const Search())
+                  MaterialPageRoute(builder: (context) => const Activity())
                 );
               }),
               
-              _buildNavIcon(Icons.map_outlined, "Карта", false, () {
-                // Navigator.push logic for Map
+              _buildNavIcon(Icons.confirmation_number_outlined, "Бронь", false, () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const Search())
+                );
               }),
 
               // Your FAB button (Add logic here too!)

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'phone_number.dart';
 import 'my_number.dart';
-
-
 
 class StartLog extends StatelessWidget {
   const StartLog({super.key});
@@ -15,7 +12,6 @@ class StartLog extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 1️⃣ Background - используем Container с цветом или картинку
           SizedBox.expand(
             child: Image.asset(
               'assets/imgs/background.png',
@@ -23,113 +19,116 @@ class StartLog extends StatelessWidget {
             ),
           ),
 
-          // 2️⃣ Основной контент
           SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                
-                // Логотип Redy
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 16,
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: size.height * 0.05),
+
+                  // Logo
                   Image.asset(
                     'assets/imgs/logo.png',
-                    width: 200,
+                    width: size.width * 0.5,
                     fit: BoxFit.contain,
                   ),
 
-                const Spacer(),
+                  SizedBox(height: size.height * 0.05),
 
-                // 3️⃣ Центральная композиция с аватарами
-                SizedBox(
-                  height: size.height * 0.4,
-                  width: double.infinity,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Декоративные линии (если они в Ellipse.png)
-                      _buildAvatar('assets/imgs/Ellipse8.png', 140, -80, -60),
-                      _buildAvatar('assets/imgs/Ellipse12.png', 120, 80, 20),
-                      _buildAvatar('assets/imgs/Ellipse67.png', 90, -40, 100),
-                    ],
+                  // Avatars
+                  SizedBox(
+                    height: size.height * 0.32,
+                    width: double.infinity,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        _buildAvatar('assets/imgs/Ellipse8.png',
+                            size.width * 0.35, -size.width * 0.2, -50),
+                        _buildAvatar('assets/imgs/Ellipse12.png',
+                            size.width * 0.3, size.width * 0.2, 15),
+                        _buildAvatar('assets/imgs/Ellipse67.png',
+                            size.width * 0.23, -size.width * 0.1, 80),
+                      ],
+                    ),
                   ),
-                ),
 
-                const Spacer(),
+                  SizedBox(height: size.height * 0.05),
 
-                // 4️⃣ Текстовый блок и кнопки
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Найди своего партнера",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        "Зажигай не только сигарету, но и крутой диалог. Твой идеальный напарник уже здесь",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFFB9C7D2),
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Кнопка входа
-                      _buildMainButton(
-                        context,
-                        title: "Войти через телефон",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PhoneNumber(), // Replace 'Message' with your class name if it's different
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Регистрация
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Нет аккаунта?",
-                            style: TextStyle(color: Color(0xFFB9C7D2)),
+                  // Text + buttons
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Найди своего партнера",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: size.width * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            height: 1.2,
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyNumber(), // Replace 'Message' with your class name if it's different
+                        ),
+                        SizedBox(height: size.height * 0.015),
+                        Text(
+                          "Зажигай не только сигарету, но и крутой диалог. Твой идеальный напарник уже здесь",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: size.width * 0.037,
+                            color: const Color(0xFFB9C7D2),
+                            height: 1.4,
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.04),
+
+                        _buildMainButton(
+                          context,
+                          title: "Войти через телефон",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PhoneNumber(),
+                              ),
+                            );
+                          },
+                        ),
+
+                        SizedBox(height: size.height * 0.02),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Нет аккаунта?",
+                              style: TextStyle(color: Color(0xFFB9C7D2)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const MyNumber(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Регистрация",
+                                style: TextStyle(
+                                  color: Color(0xFFFF5069),
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            },
-                            child: const Text(
-                              "Регистрация",
-                              style: TextStyle(
-                                color: Color(0xFFFF5069),
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -137,7 +136,6 @@ class StartLog extends StatelessWidget {
     );
   }
 
-  // Виджет для аватаров с позиционированием
   Widget _buildAvatar(String asset, double size, double dx, double dy) {
     return Transform.translate(
       offset: Offset(dx, dy),
@@ -151,7 +149,7 @@ class StartLog extends StatelessWidget {
               color: Colors.black.withOpacity(0.3),
               blurRadius: 20,
               spreadRadius: 5,
-            )
+            ),
           ],
         ),
         child: ClipOval(
@@ -161,13 +159,14 @@ class StartLog extends StatelessWidget {
     );
   }
 
-  // Красивая кнопка
-  Widget _buildMainButton(BuildContext context, {required String title, required VoidCallback onTap}) {
+  Widget _buildMainButton(BuildContext context,
+      {required String title, required VoidCallback onTap}) {
+    final width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: width * 0.04),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           gradient: const LinearGradient(
@@ -184,9 +183,9 @@ class StartLog extends StatelessWidget {
         child: Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: width * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),

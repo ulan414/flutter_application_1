@@ -12,6 +12,8 @@ import 'screens/App/Search.dart';
 import 'screens/App/Chat.dart';
 import 'screens/App/Message.dart';
 import 'screens/App/Group.dart';
+import 'screens/App/Activities.dart';
+
 
 import 'screens/LogIn/start.dart';
 import 'screens/LogIn/verificationLog.dart';
@@ -53,7 +55,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // home: const AuthWrapper(),
-      home: const StartLog(),
+      // home: const StartLog(),
+      home: const Activity(),
+
     );
   }
 }
@@ -64,7 +68,7 @@ class AuthWrapper extends StatefulWidget {
   State<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _AuthWrapperState extends State<AuthWrapper> {
+class _AuthWrapperState extends State<AuthWrapper> { 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
